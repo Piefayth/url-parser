@@ -1,0 +1,44 @@
+form {
+	width: 30%;
+	margin: 0 auto;
+}
+label, input {
+	display: inline-block;
+	margin: 5px 0px 5px 0px;
+}
+label {
+	width: 30%;
+	text-align: right;
+}
+
+label + input {
+	width: 30%;
+	margin: 0 30% 0 4%;
+}
+
+#button {
+	float: right;
+}
+.round{
+-webkit-border-radius: 5px;
+-moz-border-radius: 5px;
+border-radius: 5px;
+padding: 5px;
+margin-bottom: 4px;
+}
+
+.bg-success {
+	border: 1px solid #33aa33;
+}
+
+.bg-danger {
+	border: 1px solid #aa3333;
+}
+
+div.row.round.bg-danger > div.col-xs-1.edgeum{
+	border-right: 1px solid #aa3333;
+}
+
+div.row.round.bg-success > div.col-xs-1.edgeum{
+	border-right: 1px solid #33aa33;
+}

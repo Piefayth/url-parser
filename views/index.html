@@ -1,0 +1,129 @@
+<html>
+<head>
+
+<link href="stylesheets/photourl.css" rel="stylesheet">
+<link href="stylesheets/bootstrap.min.css" rel="stylesheet">
+<link href="stylesheets/jumbotron.css" rel="stylesheet">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="http://malsup.github.com/jquery.form.js"></script>
+<script src="javascripts/bootstrap.min.js"></script>
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+<![endif]-->
+<script>
+$(function(){
+  $('#bertern').click(function(){
+    var formData = new FormData();
+    formData.append('delimiter', $('#delimiter').val());
+    formData.append('urls', $('#urls').val());
+    formData.append('file', $('#file')[0].files[0]);
+    $('#bertern').prop('disabled', true);
+    $.ajax({
+      type: "POST",
+      data: formData,
+      url: "",
+      cache:false,
+      xhr: function(){
+        myXhr = $.ajaxSettings.xhr();
+        if (myXhr.upload){
+          myXhr.upload.addEventListener('progress', progressHandlingFunction, false);
+        }
+        return myXhr;
+      },
+      contentType: false,
+      processData: false
+    }).done (function (data){
+      if (data == "Ok"){
+        var source = new EventSource('result-stream');
+        source.addEventListener('message', function(e){
+          if (e.data == 'END') {e.target.close()}
+          result = e.data.split(',');
+          var success;
+          if ((result[0] == '200') && (result[2] == 'image/jpeg')) {success = true} else {success = false}
+          if (result[0] == 'END'){$('#result-area').append('Complete'); $('#bertern').prop('disabled', false)} else{
+            $('#result-area').append('<div class=\"row round ' + (success ? 'bg-success' : 'bg-danger') + '\"><div class=\"col-xs-1 edgeum\">' + (success ? '✔' : '✖') +'</div><div class=\"col-xs-1\">' + result[0] + '</div><div class=\"col-xs-6\"> <b>URL</b>: ' + result[1] + '</div><div class=\"col-xs-4\"> <b>FILETYPE</b>: ' + result[2] + '</div></div></p>');
+          }
+          }, false);
+      }
+    }).fail(function(xhr, status, error){
+      console.log("Status: " + status + " Error: " + error);
+      console.log(xhr);
+      })
+  })
+})
+
+function progressHandlingFunction(evt){
+  if (evt.lengthComputable) {
+          var percentComplete = (evt.loaded / evt.total)*100;
+          $('#progress').html(percentComplete + '%');
+  } else {
+          console.log('unable to complete');
+  }
+}
+</script>
+</head>
+<body>
+  <div class="container">
+        <div class="header clearfix">
+          <h3 class="text-muted">URL Buddy</h3>
+        </div>
+
+        <div class="row">
+          <form action="javascript:void(0)" enctype="multipart/form-data" id="urls-form" class="form-horizontal col-xs-6 col-xs-offset-3">
+
+            <div class="row">
+              <div class="col-xs-12 row">
+                <label class="" style="text-align: left"> Delimiter</label>
+              </div>
+              <div class="col-xs-12 row">
+                <input type="text" id="delimiter" name="delimiter" class="form-control" style="">
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xs-12 row">
+                <label class="" style="text-align: left"> URLs </label>
+              </div>
+              <div class="col-xs-12 row">
+                <input type="text" id="urls" name="urls" class="form-control">
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-xs-12 row">
+                <label class="" style="text-align: left"> Upload File: </label>
+              </div>
+              <div class="col-xs-12 row">
+                <input type="file" id="file" name="file" class="">
+              </div>
+            </div>
+            <div class="row">
+              <div class="pull-left">
+              <button type="button" id="bertern" name="submitbutton" class="btn btn-primary">Submit</button>
+              <span id="progress"></span>
+            </div>
+            </div>
+
+          </form>
+        </div>
+
+        <div class="col-xs-12 row">
+
+          <br/>
+          <b>Updates - Tuesday, April 7th</b>
+          <p>Prevented server crash on file i/o errors.</p>
+          <p>Enforced a 20MB filesize limit.</p>
+          <br/>
+          <br/>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12"  id="result-area"></div>
+        </div>
+
+        <footer class="footer">
+          <p>&copy; Sean Ryan 2014</p>
+        </footer>
+
+</body>
+</html>
